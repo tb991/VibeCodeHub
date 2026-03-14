@@ -1,0 +1,2 @@
+supergrok 14mar26
+make me a program in python that runs in the linux terminal ,all the user does is press enter. if he enters it once. it's logging a poker cash game win, then it asks if it's very small, small, medium or large (cash gain), you do this by pressing enter once, twice, three times, or four times. then it asks if it's from blind-stealing, bluffing, or quality of hand. this is also done by pressing enter once, twice or three times.
