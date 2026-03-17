@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Breathing Animation</title>
+
+<style>
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+/* Loading bar container */
+.loading-bar {
+  width: 600px;
+  height: 30px;
+  border: 3px solid white;
+  margin-bottom: 40px;
+  display: flex;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+/* Individual squares */
+.segment {
+  flex: 1;
+  margin: 1px;
+  background: transparent;
+}
+
+.segment.filled {
+  background: limegreen;
+}
+
+.circle {
+  width: 60px;
+  height: 60px;
+  background: blue;
+  border-radius: 50%;
+  animation: breathe 3.5s ease-in-out 30 forwards;
+}
+@keyframes breathe {
+  0% { transform: scale(0.5); }
+  57% { transform: scale(2.3); }
+  100% { transform: scale(0.5); }
+}
+.message {
+  position: absolute;
+  font-size: 80px;
+  font-weight: bold;
+  display: none;
+  text-align: center;
+}
+
+.stopwatch {
+  position: absolute;
+  font-size: 100px;
+  font-weight: bold;
+  display: none;
+}
+#nextButton {
+  position: absolute;
+  bottom: 80px;
+  font-size: 30px;
+  padding: 15px 40px;
+  cursor: pointer;
+}
+
+#signalDot {
+  position: absolute;
+  bottom: 90px;
+  right: 120px;
+  width: 20px;
+  height: 20px;
+  background: red;
+  border-radius: 50%;
+  display: none;
+}
+
+#replayButton {
+  position: absolute;
+  bottom: 160px;
+  font-size: 28px;
+  padding: 12px 30px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+
+<div class="circle" id="circle"></div>
+<div class="message" id="message"></div>
+<div class="stopwatch" id="stopwatch">00:00</div>
+<button id="nextButton" style="display:none;">Done</button>
+<button id="replayButton" style="display:none;">Replay</button>
+<div id="signalDot"></div>
+<script>
+
+let timerInterval;
+
+const circle = document.getElementById("circle");
+const message = document.getElementById("message");
+const stopwatch = document.getElementById("stopwatch");
+const loadingBar = document.getElementById("loadingBar");
+
+const totalBreaths = 30;
+let breathCount = 0;
+
+/* Create bar segments */
+for (let i = 0; i < totalBreaths; i++) {
+  const seg = document.createElement("div");
+  seg.classList.add("segment");
+  loadingBar.appendChild(seg);
+}
+
+
+
+circle.addEventListener("animationiteration", () => {
+
+  const segments = document.querySelectorAll(".segment");
+
+  if (breathCount < totalBreaths) {
+    segments[breathCount].classList.add("filled");
+    breathCount++;
+  }
+
+});
+/* When breathing ends */
+circle.addEventListener("animationend", () => {
+
+	const segments = document.querySelectorAll(".segment");
+
+	if (breathCount < totalBreaths) {
+	  segments[breathCount].classList.add("filled");
+	}
+	  /* OPTIONAL: remove bar after finish */
+	  // loadingBar.style.display = "none";
+	document.getElementById("loadingBar").remove();
+	  circle.style.display = "none";
+
+	  showMessage("FULL INHALE", 3000, () => {
+	    showMessage("FULL EXHALE", 3000, startStopwatch);
+	  });
+	});
+	document.getElementById("replayButton").onclick = function() {
+
+	  location.reload();
+
+};
+document.getElementById("nextButton").onclick = function() {
+
+  const dot = document.getElementById("signalDot");
+
+  /* show red signal */
+  dot.style.display = "block";
+
+  /* wait one second before changing screen */
+  setTimeout(startBreathHold, 1000);
+
+};
+
+function showMessage(text, duration, callback) {
+  message.textContent = text;
+  message.style.display = "block";
+
+  setTimeout(() => {
+    message.style.display = "none";
+    callback();
+  }, duration);
+}
+
+function startStopwatch() {
+
+
+  stopwatch.style.display = "block";
+  document.getElementById("nextButton").style.display = "block";
+
+  let seconds = 0;
+
+  timerInterval = setInterval(() => {
+
+    seconds++;
+
+    const mins = String(Math.floor(seconds / 60)).padStart(2,'0');
+    const secs = String(seconds % 60).padStart(2,'0');
+
+    stopwatch.textContent = `${mins}:${secs}`;
+
+  }, 1000);
+}
+
+function startBreathHold() {
+
+  clearInterval(timerInterval);
+
+  document.body.style.background = "#444";
+
+  document.getElementById("nextButton").style.display = "none";
+  document.getElementById("signalDot").style.display = "none";
+
+  stopwatch.style.color = "white";
+  stopwatch.textContent = "00:00";
+
+  let seconds = 0;
+
+  timerInterval = setInterval(() => {
+
+    seconds++;
+
+    if (seconds >= 15) {
+
+      clearInterval(timerInterval);
+
+      stopwatch.textContent = "Well done";
+
+      document.getElementById("replayButton").style.display = "block";
+
+      return;
+    }
+
+    const mins = String(Math.floor(seconds / 60)).padStart(2,'0');
+    const secs = String(seconds % 60).padStart(2,'0');
+
+    stopwatch.textContent = `${mins}:${secs}`;
+
+  }, 1000);
+
+}
+</script>
+
+</body>
+</html>
